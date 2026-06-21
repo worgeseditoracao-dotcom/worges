@@ -367,7 +367,7 @@ function FormularioCapitulo() {
                   {total > 0 ? `R$ ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "A confirmar"}
                 </span>
               </div>
-              <p className="text-xs text-[var(--color-text-subtle)]">Prazo: {prazo} · Pagamento em até 5x sem acréscimo</p>
+              <p className="text-xs text-[var(--color-text-subtle)]">Prazo: {prazo} · Aceitamos Pix ou Cartão em até 5x sem acréscimo</p>
             </div>
 
             <button

@@ -61,6 +61,16 @@ export default function CapituloPage() {
               Publique seu capítulo em uma obra coletiva com ISBN, DOI e carta de aceite.
             </p>
 
+            {/* Info Banner */}
+            <div className="mt-6 rounded-[var(--radius-lg)] border border-cyan-500/20 bg-cyan-500/5 p-4">
+              <p className="text-sm font-medium text-[var(--color-text)]">
+                Até 30 páginas &nbsp;|&nbsp; Até 10 autores &nbsp;|&nbsp; Template obrigatório
+              </p>
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                R$ 7,00/página excedente &nbsp;|&nbsp; R$ 10,00/autor excedente
+              </p>
+            </div>
+
             {/* Regras */}
             <div className="mt-8">
               <p className="text-sm font-semibold text-[var(--color-text)] mb-3">Regras editoriais</p>
@@ -169,7 +179,7 @@ export default function CapituloPage() {
                     {autoresExcedentes > 0 && <p>{autoresExcedentes} aut. excedentes × R$ 10,00 = R$ {custoExcedenteAutores.toFixed(2).replace(".", ",")}</p>}
                   </div>
                   <p className="text-xs text-[var(--color-text-subtle)] mt-2">
-                    Pagamento em até 5x sem acréscimo · Aceitamos Pix ou Cartão
+                    Aceitamos Pix ou Cartão em até 5x sem acréscimo
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
@@ -206,6 +216,14 @@ export default function CapituloPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        </div>
+
+        {/* Pagamento */}
+        <div className="mt-6 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center">
+          <p className="text-sm text-[var(--color-text-muted)]">
+            Aceitamos <span className="font-medium text-[var(--color-text)]">Pix</span> ou{" "}
+            <span className="font-medium text-[var(--color-text)]">Cartão em até 5x sem acréscimo</span>
+          </p>
         </div>
       </div>
     </section>

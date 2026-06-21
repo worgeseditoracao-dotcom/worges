@@ -1,8 +1,8 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import Link from "next/link";
-import { useState } from "react";
-import { ArrowRight, Check, BookOpen, Printer, Clock, Download } from "lucide-react";
+export default function EbookImpressaoRedirect() {
+  redirect("/publicar/impressao");
+}
 
 type Faixa = "60" | "150" | "250" | "300+";
 type Modalidade = "sem" | "com";

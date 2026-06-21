@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight,
   BookOpen,
@@ -7,104 +6,142 @@ import {
   ExternalLink,
   FileText,
   CircleCheck,
-  BookMarked,
   Zap,
-  Clock,
   Globe,
+  Printer,
+  Star,
+  Sparkles,
+  QrCode,
+  BookMarked,
 } from "lucide-react";
 
 const plans = [
   {
-    id: "ebook",
+    id: "ebook-sem-diagramacao",
     icon: BookOpen,
-    title: "Ebook",
-    price: "R$ 200,00",
-    priceNote: "até 100 páginas",
+    title: "E-book sem Diagramação",
+    subtitle: "Autor envia o arquivo pronto",
+    price: "R$ 249,90",
+    priceNote: "Preço único",
     href: "/publicar/ebook",
     features: [
-      "ISBN",
-      "DOI",
-      "Diagramação profissional",
-      "Capa personalizada",
-      "Ficha catalográfica",
-      "Certificado",
+      "ISBN Digital",
+      "Ficha Catalográfica",
+      "Capa Profissional",
+      "QR Code",
+      "Conselho Editorial",
     ],
+    featured: false,
   },
   {
-    id: "ebook-impressao",
+    id: "ebook-com-diagramacao",
     icon: BookOpen,
-    title: "Ebook + Impressão",
-    price: "R$ 350,00",
-    priceNote: "até 100 páginas",
-    href: "/publicar/ebook-impressao",
+    title: "E-book com Diagramação",
+    subtitle: "Diagramação profissional inclusa",
+    price: "R$ 269,90",
+    priceNote: "até 60 pág. | R$ 329,90 até 150 | R$ 349,90 300+",
+    href: "/publicar/ebook",
     features: [
-      "Tudo do Ebook +",
-      "Impressão sob demanda",
-      "Formato A5/B5",
-      "Lombada personalizada",
+      "Diagramação profissional",
+      "ISBN Digital",
+      "Ficha Catalográfica",
+      "Capa Profissional",
+      "QR Code",
+      "Conselho Editorial",
     ],
+    featured: false,
+  },
+  {
+    id: "impressao",
+    icon: Printer,
+    title: "Arquivo para Impressão",
+    subtitle: "Pronto para gráfica",
+    price: "R$ 289,90",
+    priceNote: "até 60 pág. | R$ 339,90 até 150 | R$ 379,90 300+",
+    href: "/publicar/impressao",
+    features: [
+      "Arquivo para Impressão",
+      "ISBN Físico",
+      "Ficha Catalográfica",
+      "Capa Profissional",
+      "QR Code",
+      "Conselho Editorial",
+    ],
+    featured: true,
+  },
+  {
+    id: "completo",
+    icon: BookMarked,
+    title: "Pacote Completo",
+    subtitle: "E-book + Arquivo para Impressão",
+    price: "R$ 329,90",
+    priceNote: "até 60 pág. | R$ 349,90 até 150 | R$ 389,90 300+",
+    href: "/publicar/completo",
+    features: [
+      "Diagramação profissional",
+      "E-book",
+      "Arquivo para Impressão",
+      "ISBN Digital e Físico",
+      "Ficha Catalográfica",
+      "Capa Profissional",
+      "QR Code",
+      "Conselho Editorial",
+    ],
+    featured: true,
+  },
+  {
+    id: "plus",
+    icon: Sparkles,
+    title: "Pacote Plus",
+    subtitle: "Completo + Revisão + Kindle",
+    price: "R$ 559,90",
+    priceNote: "até 60 pág. | R$ 579,90 até 150 | R$ 619,90 300+",
+    href: "/publicar/plus",
+    features: [
+      "Revisão Ortográfica e Gramatical",
+      "Diagramação profissional",
+      "E-book",
+      "Arquivo para Impressão",
+      "Conversão para Kindle (ePub)",
+      "ISBN Digital e Físico",
+      "Ficha Catalográfica",
+      "Capa Profissional",
+      "QR Code",
+      "Conselho Editorial",
+    ],
+    featured: true,
   },
   {
     id: "capitulo",
     icon: Layers,
     title: "Capítulo em Coletânea",
-    price: "R$ 7,00/página excedente",
-    priceNote: "",
+    subtitle: "Até 30 páginas | 10 autores",
+    price: "R$ 149,00",
+    priceNote: "7 dias | R$ 190,00 urgência 2 dias",
     href: "/publicar/capitulo",
     features: [
       "DOI",
       "Certificado",
       "Carta de aceite",
-      "10 páginas grátis",
       "Diagramação",
+      "Template obrigatório",
     ],
+    featured: false,
   },
 ] as const;
 
 const services = [
-  { icon: FileText, label: "DOI", price: "R$ 40,00" },
-  { icon: CircleCheck, label: "Revisão", price: "R$ 200,00" },
-  { icon: BookMarked, label: "ABNT", price: "R$ 200,00" },
-  { icon: Zap, label: "Urgência", price: "R$ 169,90" },
+  { icon: FileText, label: "DOI", price: "R$ 30,00" },
+  { icon: Zap, label: "Conversão Kindle (ePub)", price: "R$ 89,90" },
+  { icon: CircleCheck, label: "Revisão Ortográfica e Gramatical", price: "R$ 230,00" },
 ] as const;
 
 const steps = [
   { number: "01", title: "Escolha o pacote", desc: "Selecione o plano ideal para sua obra." },
   { number: "02", title: "Envie seus arquivos", desc: "Faça upload do conteúdo pronto." },
-  { number: "03", title: "Pague com segurança", desc: "Pagamento processado com segurança." },
+  { number: "03", title: "Pague com segurança", desc: "Pix ou Cartão em até 5x sem acréscimo." },
   { number: "04", title: "Análise editorial", desc: "Revisamos e preparamos sua obra." },
   { number: "05", title: "Obra publicada", desc: "Disponível com ISBN, DOI e distribuição." },
-] as const;
-
-const catalogBooks = [
-  {
-    title: "Fundamentos da Pesquisa Qualitativa",
-    authors: ["Dra. Marina Oliveira", "Prof. Carlos Santos"],
-    category: "Acadêmico",
-    isbn: "ISBN 978-65-00-00001-1",
-    cover: "/images/book-cover-1.jpg",
-  },
-  {
-    title: "Inteligência Artificial na Educação",
-    authors: ["Prof. Rafael Mendes"],
-    category: "Tecnologia",
-    isbn: "ISBN 978-65-00-00002-8",
-    cover: "/images/book-cover-2.jpg",
-  },
-  {
-    title: "Direito Constitucional Avançado",
-    authors: ["Dr. Paulo Ferreira"],
-    category: "Direito",
-    isbn: "ISBN 978-65-00-00003-5",
-    cover: "/images/book-cover-3.jpg",
-  },
-  {
-    title: "Gestão Empresarial Contemporânea",
-    authors: ["Dra. Ana Luiza Costa", "Msc. Bruno Lima"],
-    category: "Gestão",
-    isbn: "ISBN 978-65-00-00004-2",
-    cover: "/images/book-cover-4.jpg",
-  },
 ] as const;
 
 export default function PublicarPage() {
@@ -122,7 +159,7 @@ export default function PublicarPage() {
             <span className="text-gradient-cyan">publicação</span>
           </h1>
           <p className="mt-5 text-base sm:text-lg text-[var(--color-text-muted)] max-w-xl mx-auto leading-relaxed">
-            Temos o plano perfeito para sua obra, seja ela digital, impressa ou em coletânea.
+            Do e-book ao impresso, temos o pacote perfeito para sua obra.
           </p>
         </div>
       </section>
@@ -134,21 +171,27 @@ export default function PublicarPage() {
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Planos de publicação</h2>
             <p className="mt-3 text-[var(--color-text-muted)]">Escolha o plano ideal para sua obra</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className="gradient-card rounded-[var(--radius-lg)] border border-[var(--color-border)] p-6 flex flex-col transition-all hover:border-cyan-500/30 hover:shadow-cyan"
+                className={`gradient-card rounded-[var(--radius-lg)] border p-6 flex flex-col transition-all hover:border-cyan-500/30 hover:shadow-cyan ${
+                  plan.featured ? "border-cyan-500/30 bg-cyan-500/5" : "border-[var(--color-border)]"
+                }`}
               >
+                {plan.featured && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500 text-black mb-3 self-start">
+                    <Star className="w-3 h-3" /> Destaque
+                  </span>
+                )}
                 <div className="w-10 h-10 rounded-[var(--radius-sm)] bg-cyan-500/20 flex items-center justify-center text-cyan-400">
                   <plan.icon className="w-5 h-5" />
                 </div>
                 <h3 className="mt-4 text-lg font-bold">{plan.title}</h3>
+                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{plan.subtitle}</p>
                 <p className="mt-3 text-2xl font-bold text-gradient-cyan">{plan.price}</p>
-                {plan.priceNote && (
-                  <p className="text-xs text-[var(--color-text-subtle)] mt-1">{plan.priceNote}</p>
-                )}
-                <ul className="mt-5 flex flex-col gap-2.5 flex-1">
+                <p className="text-xs text-[var(--color-text-subtle)] mt-1 leading-relaxed">{plan.priceNote}</p>
+                <ul className="mt-5 flex flex-col gap-2 flex-1">
                   {plan.features.map((feat) => (
                     <li key={feat} className="flex items-start gap-2 text-sm text-[var(--color-text-muted)]">
                       <CircleCheck className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
@@ -176,7 +219,7 @@ export default function PublicarPage() {
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Serviços adicionais</h2>
             <p className="mt-3 text-[var(--color-text-muted)]">Adicione serviços complementares à sua publicação</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto">
             {services.map((svc) => (
               <div
                 key={svc.label}
@@ -185,7 +228,7 @@ export default function PublicarPage() {
                 <div className="w-9 h-9 rounded-[var(--radius-sm)] bg-cyan-500/20 flex items-center justify-center mx-auto text-cyan-400">
                   <svc.icon className="w-4.5 h-4.5" />
                 </div>
-                <p className="mt-3 text-sm font-medium">{svc.label}</p>
+                <p className="mt-3 text-sm font-medium leading-snug">{svc.label}</p>
                 <p className="mt-1 text-sm text-gradient-cyan font-semibold">{svc.price}</p>
               </div>
             ))}
@@ -210,53 +253,6 @@ export default function PublicarPage() {
                 <p className="mt-1.5 text-xs text-[var(--color-text-muted)] leading-relaxed">{step.desc}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Catalog Preview */}
-      <section className="py-20 sm:py-28 bg-[var(--color-surface)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Obras publicadas</h2>
-            <p className="mt-3 text-[var(--color-text-muted)]">Conheça alguns títulos do nosso catálogo</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {catalogBooks.map((book) => (
-              <div
-                key={book.title}
-                className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden transition-all hover:border-cyan-500/30 hover:shadow-cyan"
-              >
-                <div className="relative aspect-[3/4] bg-[var(--color-surface)] overflow-hidden">
-                  <Image
-                    src={book.cover}
-                    alt={book.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                  <div className="absolute top-2 left-2">
-                    <span className="inline-block px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold bg-white/90 text-cyan-700 border border-cyan-500/20">
-                      {book.category}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-sm font-bold leading-snug">{book.title}</h3>
-                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">{book.authors.join(", ")}</p>
-                  <p className="mt-2 text-[10px] text-[var(--color-text-subtle)]">{book.isbn}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-10">
-            <Link
-              href="/catalogo"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-[var(--radius-md)] text-sm font-semibold border border-[var(--color-border)] text-[var(--color-text)] hover:border-cyan-500/40 hover:text-cyan-400 transition-all"
-            >
-              Ver catálogo completo
-              <ExternalLink className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       </section>

@@ -1,8 +1,8 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import Link from "next/link";
-import { useState, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+export default function EbookImpressaoSubmeterRedirect() {
+  redirect("/publicar/impressao/submeter");
+}
 import { ArrowRight, ArrowLeft, Upload, X, FileText, Image, Check, AlertCircle, Globe, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import { AuthGate } from "@/components/AuthGate";
