@@ -35,7 +35,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       id,
       email,
       name,
-      tipo: data?.tipo ?? "autor",
+      tipo: (data?.tipo as "autor" | "admin") ?? "autor",
     });
   }
 
