@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 450" width="300" height="450">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="450" fill="url(#g)"/>
+  <rect x="40" y="60" width="220" height="280" rx="4" fill="none" stroke="#22d3ee" stroke-width="2" stroke-opacity="0.3"/>
+  <circle cx="150" cy="200" r="36" fill="none" stroke="#22d3ee" stroke-width="2" stroke-opacity="0.4"/>
+  <path d="M130 200 L142 212 L170 184" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.6"/>
+  <text x="150" y="290" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14" font-weight="500">WORGES</text>
+  <text x="150" y="315" text-anchor="middle" fill="#64748b" font-family="system-ui, sans-serif" font-size="10">Capa não disponível</text>
+</svg>

@@ -1,0 +1,11 @@
+-- MIGRATION: obra_slug_unique_visibility
+-- NOTA: Este arquivo é mantido por histórico, mas todos os itens abaixo
+-- já estão aplicados no banco desde a migration inicial (20260619210127_initial_schema.sql):
+--   - slug TEXT UNIQUE NOT NULL → cria constraint "obras_slug_key" automaticamente
+--   - CREATE INDEX idx_obras_slug ON obras(slug)
+--   - CREATE INDEX idx_obras_publicado ON obras(publicado)
+-- Nenhuma ação necessária.
+
+-- ALTER TABLE public.obras ADD CONSTRAINT IF NOT EXISTS obras_slug_unique UNIQUE (slug);
+-- CREATE INDEX IF NOT EXISTS idx_obras_slug ON public.obras(slug);
+-- CREATE INDEX IF NOT EXISTS idx_obras_publicado ON public.obras(publicado);
