@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, ArrowRight, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
-import { supabase } from "@/lib/supabase";
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -31,21 +30,18 @@ export default function CadastroPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name } },
+    const res = await fetch("/api/cadastro", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
     });
+    const data = await res.json();
     setLoading(false);
-    if (error) {
-      if (error.message.includes("already registered")) {
-        toast.error("Este e-mail já está cadastrado.");
-      } else {
-        toast.error(error.message);
-      }
+    if (!res.ok) {
+      toast.error(data.error || "Erro ao criar conta.");
       return;
     }
-    toast.success("Conta criada! Verifique seu e-mail para confirmar o cadastro.");
+    toast.success("Conta criada! Faça login para continuar.");
     router.push("/auth/login");
   }
 
