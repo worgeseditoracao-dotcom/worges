@@ -45,6 +45,8 @@ function FormularioEbook() {
   const [openAccess, setOpenAccess] = useState(false);
   const [adicionais, setAdicionais] = useState<Set<Adicional>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [whatsapp, setWhatsapp] = useState("");
+  const [emailContato, setEmailContato] = useState("");
 
   function toggleAdicional(id: Adicional) {
     setAdicionais((prev) => {
@@ -65,6 +67,8 @@ function FormularioEbook() {
     e.preventDefault();
     if (!titulo.trim()) { toast.error("Informe o título da obra."); return; }
     if (!autores.trim()) { toast.error("Informe o(s) autor(es)."); return; }
+    if (!emailContato.trim()) { toast.error("Informe seu e-mail de contato."); return; }
+    if (!whatsapp.trim()) { toast.error("Informe seu WhatsApp."); return; }
     setLoading(true);
     const res = await fetch("/api/submeter", {
       method: "POST",
@@ -84,6 +88,7 @@ function FormularioEbook() {
         autores,
         resumo,
         categoria: categoria || null,
+        modalidade: JSON.stringify({ email: emailContato, whatsapp }),
       }),
     });
     const data = await res.json();
@@ -130,6 +135,20 @@ function FormularioEbook() {
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="resumo" className="text-sm font-medium">Resumo</label>
                   <textarea id="resumo" value={resumo} onChange={(e) => setResumo(e.target.value)} rows={3} placeholder="Breve descrição (será exibida no catálogo)" className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60 resize-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="gradient-card rounded-[var(--radius-xl)] border border-[var(--color-border)] p-6">
+              <h2 className="text-base font-bold mb-5">Contato</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">E-mail <span className="text-red-500">*</span></label>
+                  <input type="email" value={emailContato} onChange={(e) => setEmailContato(e.target.value)} placeholder="seu@email.com" className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">WhatsApp <span className="text-red-500">*</span></label>
+                  <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="(11) 99999-9999" className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60" />
                 </div>
               </div>
             </div>

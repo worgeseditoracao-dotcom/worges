@@ -25,6 +25,8 @@ export default function PlusSubmeterPage() {
   const [faixa, setFaixa] = useState(faixas[0].value);
   const [openAccess, setOpenAccess] = useState(false);
   const [servicos, setServicos] = useState<string[]>([]);
+  const [whatsapp, setWhatsapp] = useState("");
+  const [emailContato, setEmailContato] = useState("");
   const [loading, setLoading] = useState(false);
 
   const faixaSelecionada = faixas.find((f) => f.value === faixa) ?? faixas[0];
@@ -34,6 +36,8 @@ export default function PlusSubmeterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!titulo.trim()) { toast.error("Digite o título da obra."); return; }
+    if (!emailContato.trim()) { toast.error("Informe seu e-mail de contato."); return; }
+    if (!whatsapp.trim()) { toast.error("Informe seu WhatsApp de contato."); return; }
     setLoading(true);
     const res = await fetch("/api/submeter", {
       method: "POST",
@@ -46,6 +50,7 @@ export default function PlusSubmeterPage() {
         valor_base: faixaSelecionada.price,
         orcamento_final: total,
         open_access: false,
+        modalidade: JSON.stringify({ email: emailContato, whatsapp }),
         servicos: servicosSelecionados.map((s) => ({ nome: s.nome, valor: s.valor })),
       }),
     });
@@ -72,6 +77,22 @@ export default function PlusSubmeterPage() {
             <label className="text-sm font-bold mb-3 block">Título da obra</label>
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Digite o título..."
               className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] text-sm outline-none focus:border-cyan-500/60" />
+          </div>
+
+          <div className="rounded-[var(--radius-xl)] border border-cyan-500/30 bg-cyan-500/5 p-6">
+            <label className="text-sm font-bold mb-3 block">Contato</label>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-[var(--color-text-muted)]">E-mail <span className="text-red-500">*</span></label>
+                <input type="email" value={emailContato} onChange={(e) => setEmailContato(e.target.value)} placeholder="seu@email.com"
+                  className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] text-sm outline-none focus:border-cyan-500/60" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-[var(--color-text-muted)]">WhatsApp <span className="text-red-500">*</span></label>
+                <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="(11) 99999-9999"
+                  className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] text-sm outline-none focus:border-cyan-500/60" />
+              </div>
+            </div>
           </div>
 
           <div className="rounded-[var(--radius-xl)] border border-cyan-500/30 bg-cyan-500/5 p-6">

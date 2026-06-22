@@ -20,6 +20,8 @@ import {
   Globe,
   EyeOff,
   Edit3,
+  Lock,
+  Download,
 } from "lucide-react";
 
 type TipoServico = "ebook" | "capitulo" | "impressao";
@@ -63,6 +65,7 @@ interface Obra {
   open_access: boolean;
   capa_url: string | null;
   data_publicacao: string | null;
+  pdf_url: string | null;
 }
 
 const statusLabel: Record<string, string> = {
@@ -158,29 +161,24 @@ export default function MinhaContaPage() {
   const emAndamento = pedidos.filter((p) => !["publicado", "cancelado"].includes(p.status));
   const concluidos = pedidos.filter((p) => p.status === "publicado");
 
-  async function toggleObraPublicacao(obra: Obra) {
+  async function toggleOpenAccess(obra: Obra) {
     setTogglingObra(obra.id);
     try {
-      const novoEstado = !obra.publicado;
+      const novoOA = !obra.open_access;
       const res = await fetch(`/api/obras/${obra.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          publicado: novoEstado,
-          data_publicacao: novoEstado ? new Date().toISOString().split("T")[0] : null,
-        }),
+        body: JSON.stringify({ open_access: novoOA }),
       });
       if (!res.ok) throw new Error("Erro ao atualizar");
       setObras((prev) =>
         prev.map((o) =>
-          o.id === obra.id
-            ? { ...o, publicado: novoEstado, data_publicacao: novoEstado ? new Date().toISOString().split("T")[0] : null }
-            : o
+          o.id === obra.id ? { ...o, open_access: novoOA } : o
         )
       );
-      toast.success(novoEstado ? "Obra tornada pública" : "Obra ocultada do público");
+      toast.success(novoOA ? "Download público ativado" : "Download restrito");
     } catch {
-      toast.error("Erro ao alterar visibilidade");
+      toast.error("Erro ao alterar acesso");
     } finally {
       setTogglingObra(null);
     }
@@ -378,9 +376,9 @@ export default function MinhaContaPage() {
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="text-sm font-bold leading-snug">{obra.titulo}</h3>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${obra.publicado ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"}`}>
-                        {obra.publicado ? <Globe className="size-2.5" /> : <EyeOff className="size-2.5" />}
-                        {obra.publicado ? "Pública" : "Privada"}
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${obra.open_access ? "bg-green-500/10 text-green-600" : "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]"}`}>
+                        {obra.open_access ? <Globe className="size-2.5" /> : <Lock className="size-2.5" />}
+                        {obra.open_access ? "Download livre" : "Download restrito"}
                       </span>
                     </div>
                     <p className="text-xs text-[var(--color-text-muted)]">{obra.autores}</p>
@@ -389,23 +387,28 @@ export default function MinhaContaPage() {
                         <ExternalLink className="size-3" />Ver perfil
                       </Link>
                       <button
-                        onClick={() => toggleObraPublicacao(obra)}
+                        onClick={() => toggleOpenAccess(obra)}
                         disabled={togglingObra === obra.id}
                         className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors disabled:opacity-60 ${
-                          obra.publicado
-                            ? "border border-red-500/30 text-red-500 hover:bg-red-500/5"
-                            : "bg-green-600 text-white hover:bg-green-500"
+                          obra.open_access
+                            ? "border border-green-500/30 text-green-500 hover:bg-green-500/5"
+                            : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500"
                         }`}
                       >
                         {togglingObra === obra.id ? (
                           <Loader2 className="size-3 animate-spin" />
-                        ) : obra.publicado ? (
-                          <><EyeOff className="size-3" />Ocultar</>
+                        ) : obra.open_access ? (
+                          <><Lock className="size-3" />Restringir</>
                         ) : (
-                          <><Globe className="size-3" />Tornar pública</>
+                          <><Globe className="size-3" />Liberar download</>
                         )}
                       </button>
-                    </div>
+                      {obra.pdf_url && (
+                        <a href={obra.pdf_url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
+                          <Download className="size-3" />Baixar
+                        </a>
+                      )}
                   </div>
                 </div>
               ))}

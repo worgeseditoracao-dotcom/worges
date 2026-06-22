@@ -43,6 +43,7 @@ interface ObraResponse {
   obra: Obra;
   pode_gerenciar: boolean;
   is_owner_or_admin: boolean;
+  is_admin: boolean;
 }
 
 function formatDate(iso: string | null): string {
@@ -142,7 +143,29 @@ export default function ObraPublicPage() {
     );
   }
 
-  const { obra, pode_gerenciar, is_owner_or_admin } = data;
+  const { obra, pode_gerenciar, is_owner_or_admin, is_admin } = data;
+  async function toggleOpenAccess() {
+    if (!data?.is_owner_or_admin) return;
+    setToggling(true);
+    try {
+      const novoOA = !data.obra.open_access;
+      const res = await fetch(`/api/obras/${data.obra.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ open_access: novoOA }),
+      });
+      if (!res.ok) throw new Error("Erro ao atualizar");
+      setData((prev) =>
+        prev ? { ...prev, obra: { ...prev.obra, open_access: novoOA } } : null
+      );
+      toast.success(novoOA ? "Download público ativado" : "Download restrito");
+    } catch {
+      toast.error("Erro ao alterar acesso");
+    } finally {
+      setToggling(false);
+    }
+  }
+
   const podeBaixar = obra.open_access || is_owner_or_admin;
   const capaUrl = obra.capa_url ?? "/images/book-cover-placeholder.svg";
 
@@ -227,30 +250,52 @@ export default function ObraPublicPage() {
 
                 {pode_gerenciar && (
                   <div className="flex flex-col gap-2">
+                    {/* Admin: toggle público */}
+                    {is_admin && (
+                      <button
+                        onClick={togglePublicacao}
+                        disabled={toggling}
+                        className={`inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-[var(--radius-md)] text-sm font-semibold transition-all disabled:opacity-60 ${
+                          obra.publicado
+                            ? "border border-red-500/30 text-red-500 hover:bg-red-500/5"
+                            : "bg-green-600 hover:bg-green-500 text-white"
+                        }`}
+                      >
+                        {toggling ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : obra.publicado ? (
+                          <><EyeOff className="size-4" />Ocultar do público</>
+                        ) : (
+                          <><Globe className="size-4" />Tornar pública</>
+                        )}
+                      </button>
+                    )}
+                    {/* Autor/Admin: toggle Open Access */}
                     <button
-                      onClick={togglePublicacao}
+                      onClick={toggleOpenAccess}
                       disabled={toggling}
                       className={`inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-[var(--radius-md)] text-sm font-semibold transition-all disabled:opacity-60 ${
-                        obra.publicado
-                          ? "border border-red-500/30 text-red-500 hover:bg-red-500/5"
-                          : "bg-green-600 hover:bg-green-500 text-white"
+                        obra.open_access
+                          ? "border border-green-500/30 text-green-500 hover:bg-green-500/5"
+                          : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500"
                       }`}
                     >
                       {toggling ? (
                         <Loader2 className="size-4 animate-spin" />
-                      ) : obra.publicado ? (
-                        <><EyeOff className="size-4" />Ocultar do público</>
+                      ) : obra.open_access ? (
+                        <><Globe className="size-4" />Download público ativo</>
                       ) : (
-                        <><Globe className="size-4" />Tornar pública</>
+                        <><Lock className="size-4" />Liberar download</>
                       )}
                     </button>
-                    <Link
-                      href={`/admin/obras/${obra.id}`}
-                      className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-[var(--radius-md)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors"
-                    >
-                      <Edit3 className="size-4" />
-                      Editar página
-                    </Link>
+                    {is_admin && (
+                      <Link
+                        href={`/admin/obras/${obra.id}`}
+                        className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-[var(--radius-md)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors"
+                      >
+                        <Edit3 className="size-4" />Editar página
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>

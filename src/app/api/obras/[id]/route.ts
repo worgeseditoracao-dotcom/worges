@@ -61,7 +61,8 @@ export async function PATCH(
     const body = await request.json();
 
     // Campos que o autor pode editar no próprio perfil
-    const camposAutor = ["titulo", "autores", "categoria", "resumo", "capa_url", "open_access", "publicado", "data_publicacao"];
+    const camposAutor = ["titulo", "autores", "categoria", "resumo", "capa_url", "open_access"];
+    // Campos restritos ao admin: slug, pdf_url, pedido_id, doi, publicado, data_publicacao, isbn
 
     const updateData: Record<string, any> = {};
     for (const key of Object.keys(body)) {

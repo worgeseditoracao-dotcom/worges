@@ -39,6 +39,8 @@ function FormularioCapitulo() {
     new Set(urgenciaParam ? (["urgencia"] as Adicional[]) : [])
   );
   const [arquivo, setArquivo] = useState<{ file: File | null; error: string | null }>({ file: null, error: null });
+  const [whatsapp, setWhatsapp] = useState("");
+  const [emailContato, setEmailContato] = useState("");
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -94,11 +96,29 @@ function FormularioCapitulo() {
     if (!titulo.trim()) { toast.error("Informe o título do capítulo."); return; }
     if (autores.some((a) => !a.nome.trim())) { toast.error("Preencha o nome de todos os autores."); return; }
     if (!arquivo.file) { toast.error("Faça upload do arquivo do capítulo no template."); return; }
+    if (!emailContato.trim()) { toast.error("Informe seu e-mail de contato."); return; }
+    if (!whatsapp.trim()) { toast.error("Informe seu WhatsApp de contato."); return; }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
+    const res = await fetch("/api/submeter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        titulo,
+        tipo: "capitulo",
+        plano: "capitulo",
+        paginas,
+        autores: autores.map((a) => ({ nome: a.nome, email: a.email, instituicao: a.instituicao })),
+        valor_base: precoBase,
+        orcamento_final: total,
+        adicionais: Array.from(adicionais),
+        modalidade: JSON.stringify({ email: emailContato, whatsapp }),
+      }),
+    });
+    const data = await res.json();
     setLoading(false);
-    toast.success("Capítulo enviado! Redirecionando para o pagamento...");
+    if (!res.ok) { toast.error(data.error || "Erro ao enviar"); return; }
+    toast.success(`Pedido ${data.codigo} criado! Acompanhe em Minha Conta.`);
   }
 
   return (
@@ -166,6 +186,39 @@ function FormularioCapitulo() {
                   rows={3}
                   placeholder="Breve resumo do capítulo"
                   className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none transition-colors focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Contato */}
+          <div className="gradient-card rounded-[var(--radius-xl)] border border-[var(--color-border)] p-6">
+            <h2 className="text-base font-bold mb-5">Contato</h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="email" className="text-sm font-medium">
+                  E-mail <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={emailContato}
+                  onChange={(e) => setEmailContato(e.target.value)}
+                  placeholder="seu@email.com"
+                  className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none transition-colors focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="whatsapp" className="text-sm font-medium">
+                  WhatsApp <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="whatsapp"
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="(11) 99999-9999"
+                  className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none transition-colors focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20"
                 />
               </div>
             </div>

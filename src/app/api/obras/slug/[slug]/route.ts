@@ -28,6 +28,7 @@ export async function GET(
         obra,
         pode_gerenciar: false,
         is_owner_or_admin: false,
+        is_admin: false,
       });
     }
 
@@ -51,6 +52,7 @@ export async function GET(
       obra,
       pode_gerenciar: true,
       is_owner_or_admin: true,
+      is_admin: isAdmin,
     });
   } catch (err) {
     console.error("Erro ao buscar obra por slug:", err);
