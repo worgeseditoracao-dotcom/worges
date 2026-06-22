@@ -364,54 +364,49 @@ export default function MinhaContaPage() {
           <div className="mt-8">
             <h2 className="text-lg font-bold mb-4">Perfis das suas obras</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {obras.map(function (obra) {
+              {obras.map((obra) => {
+                const downloadLabel = obra.open_access ? "Download livre" : "Download restrito";
+                const downloadIcon = obra.open_access ? <Globe className="size-2.5" /> : <Lock className="size-2.5" />;
+                const buttonContent = togglingObra === obra.id
+                  ? <Loader2 className="size-3 animate-spin" />
+                  : obra.open_access
+                    ? <span className="inline-flex items-center gap-1"><Lock className="size-3" />Restringir</span>
+                    : <span className="inline-flex items-center gap-1"><Globe className="size-3" />Liberar download</span>;
                 return (
-                <div key={obra.id} className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
-                  <div className="aspect-[3/2] bg-gradient-to-br from-cyan-400/10 to-cyan-600/5 flex items-center justify-center">
-                    {obra.capa_url ? (
-                      <img src={obra.capa_url} alt={obra.titulo} className="w-full h-full object-cover" />
-                    ) : (
-                      <BookOpen className="size-10 text-cyan-500/30" />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="text-sm font-bold leading-snug">{obra.titulo}</h3>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${obra.open_access ? "bg-green-500/10 text-green-600" : "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]"}`}>
-                        {obra.open_access ? <Globe className="size-2.5" /> : <Lock className="size-2.5" />}
-                        {obra.open_access ? "Download livre" : "Download restrito"}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[var(--color-text-muted)]">{obra.autores}</p>
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
-                      <Link href={`/obra/${obra.slug}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-cyan-500/30 text-xs font-medium text-cyan-600 hover:bg-cyan-500/5 transition-colors">
-                        <ExternalLink className="size-3" />Ver perfil
-                      </Link>
-                      <button
-                        onClick={() => toggleOpenAccess(obra)}
-                        disabled={togglingObra === obra.id}
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors disabled:opacity-60 ${
-                          obra.open_access
-                            ? "border border-green-500/30 text-green-500 hover:bg-green-500/5"
-                            : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500"
-                        }`}
-                      >
-                        {togglingObra === obra.id
-                          ? <Loader2 className="size-3 animate-spin" />
-                          : obra.open_access
-                            ? <span className="inline-flex items-center gap-1"><Lock className="size-3" />Restringir</span>
-                            : <span className="inline-flex items-center gap-1"><Globe className="size-3" />Liberar download</span>
-                        }
-                      </button>
-                      {obra.pdf_url && (
-                        <a href={obra.pdf_url} target="_blank" rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
-                          <Download className="size-3" />Baixar
-                        </a>
+                  <div key={obra.id} className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
+                    <div className="aspect-[3/2] bg-gradient-to-br from-cyan-400/10 to-cyan-600/5 flex items-center justify-center">
+                      {obra.capa_url ? (
+                        <img src={obra.capa_url} alt={obra.titulo} className="w-full h-full object-cover" />
+                      ) : (
+                        <BookOpen className="size-10 text-cyan-500/30" />
                       )}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-sm font-bold leading-snug">{obra.titulo}</h3>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${obra.open_access ? "bg-green-500/10 text-green-600" : "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]"}`}>
+                          {downloadIcon}{downloadLabel}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--color-text-muted)]">{obra.autores}</p>
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
+                        <Link href={`/obra/${obra.slug}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-cyan-500/30 text-xs font-medium text-cyan-600 hover:bg-cyan-500/5 transition-colors">
+                          <ExternalLink className="size-3" />Ver perfil
+                        </Link>
+                        <button
+                          onClick={() => toggleOpenAccess(obra)}
+                          disabled={togglingObra === obra.id}
+                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors disabled:opacity-60 ${obra.open_access ? "border border-green-500/30 text-green-500 hover:bg-green-500/5" : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500"}`}
+                        >{buttonContent}</button>
+                        {obra.pdf_url ? (
+                          <a href={obra.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
+                            <Download className="size-3" />Baixar
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                )
+                );
               })}
             </div>
           </div>
