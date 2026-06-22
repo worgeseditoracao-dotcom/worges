@@ -25,7 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   const perfil = await supabase.from("perfis").select("tipo").eq("id", user.id).maybeSingle();
-  if (perfil.data?.tipo !== "admin") {
+  if (perfil.error || perfil.data?.tipo !== "admin") {
     redirect("/minha-conta");
   }
 
