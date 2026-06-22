@@ -411,7 +411,7 @@ export default function MinhaContaPage() {
                       )}
                   </div>
                 </div>
-                );
+                )
               })}
             </div>
           </div>
