@@ -364,7 +364,8 @@ export default function MinhaContaPage() {
           <div className="mt-8">
             <h2 className="text-lg font-bold mb-4">Perfis das suas obras</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {obras.map((obra) => (
+              {obras.map(function (obra) {
+                return (
                 <div key={obra.id} className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
                   <div className="aspect-[3/2] bg-gradient-to-br from-cyan-400/10 to-cyan-600/5 flex items-center justify-center">
                     {obra.capa_url ? (
@@ -395,13 +396,12 @@ export default function MinhaContaPage() {
                             : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500"
                         }`}
                       >
-                        {togglingObra === obra.id ? (
-                          <Loader2 className="size-3 animate-spin" />
-                        ) : obra.open_access ? (
-                          <span className="inline-flex items-center gap-1"><Lock className="size-3" />Restringir</span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1"><Globe className="size-3" />Liberar download</span>
-                        )}
+                        {togglingObra === obra.id
+                          ? <Loader2 className="size-3 animate-spin" />
+                          : obra.open_access
+                            ? <span className="inline-flex items-center gap-1"><Lock className="size-3" />Restringir</span>
+                            : <span className="inline-flex items-center gap-1"><Globe className="size-3" />Liberar download</span>
+                        }
                       </button>
                       {obra.pdf_url && (
                         <a href={obra.pdf_url} target="_blank" rel="noopener noreferrer"
@@ -411,7 +411,8 @@ export default function MinhaContaPage() {
                       )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : null}
