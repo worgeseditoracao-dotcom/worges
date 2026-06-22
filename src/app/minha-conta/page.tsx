@@ -360,7 +360,7 @@ export default function MinhaContaPage() {
           </div>
         )}
 
-        {obras.length > 0 && (
+        {obras.length > 0 ? (
           <div className="mt-8">
             <h2 className="text-lg font-bold mb-4">Perfis das suas obras</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -414,7 +414,7 @@ export default function MinhaContaPage() {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
         <div className="mt-8 gradient-hero rounded-[var(--radius-xl)] border border-[var(--color-border)] p-6 text-center">
           <h3 className="font-bold text-base">Publique mais uma obra</h3>
