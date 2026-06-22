@@ -398,9 +398,9 @@ export default function MinhaContaPage() {
                         {togglingObra === obra.id ? (
                           <Loader2 className="size-3 animate-spin" />
                         ) : obra.open_access ? (
-                          <><Lock className="size-3" />Restringir</>
+                          <span className="inline-flex items-center gap-1"><Lock className="size-3" />Restringir</span>
                         ) : (
-                          <><Globe className="size-3" />Liberar download</>
+                          <span className="inline-flex items-center gap-1"><Globe className="size-3" />Liberar download</span>
                         )}
                       </button>
                       {obra.pdf_url && (

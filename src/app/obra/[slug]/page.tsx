@@ -274,9 +274,9 @@ export default function ObraPublicPage() {
                         {toggling ? (
                           <Loader2 className="size-4 animate-spin" />
                         ) : obra.publicado ? (
-                          <><EyeOff className="size-4" />Ocultar do público</>
+                          <span className="inline-flex items-center gap-1"><EyeOff className="size-4" />Ocultar do público</span>
                         ) : (
-                          <><Globe className="size-4" />Tornar pública</>
+                          <span className="inline-flex items-center gap-1"><Globe className="size-4" />Tornar pública</span>
                         )}
                       </button>
                     )}
@@ -293,9 +293,9 @@ export default function ObraPublicPage() {
                       {toggling ? (
                         <Loader2 className="size-4 animate-spin" />
                       ) : obra.open_access ? (
-                        <><Globe className="size-4" />Download público ativo</>
+                        <span className="inline-flex items-center gap-1"><Globe className="size-4" />Download público ativo</span>
                       ) : (
-                        <><Lock className="size-4" />Liberar download</>
+                        <span className="inline-flex items-center gap-1"><Lock className="size-4" />Liberar download</span>
                       )}
                     </button>
                     {is_admin && (

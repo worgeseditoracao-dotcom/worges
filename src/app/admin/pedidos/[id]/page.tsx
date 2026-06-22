@@ -236,7 +236,7 @@ function PedidoDetail() {
               <div><dt className="text-xs text-[var(--color-text-muted)]">Modalidade</dt><dd className="font-medium">{pedido.modalidade ?? "—"}</dd></div>
               <div><dt className="text-xs text-[var(--color-text-muted)]">Faixa de páginas</dt><dd className="font-medium">{pedido.faixa_paginas ?? "—"}</dd></div>
               <div><dt className="text-xs text-[var(--color-text-muted)]">Data do pedido</dt><dd className="font-medium">{formatDate(pedido.data_criacao)}</dd></div>
-              <div><dt className="text-xs text-[var(--color-text-muted)]">Acesso</dt><dd className="font-medium flex items-center gap-1">{pedido.open_access ? <><Globe className="size-3.5 text-green-500" /> Open Access</> : <><Lock className="size-3.5 text-[var(--color-text-muted)]" /> Restrito</>}</dd></div>
+              <div><dt className="text-xs text-[var(--color-text-muted)]">Acesso</dt><dd className="font-medium flex items-center gap-1">{pedido.open_access ? <span className="inline-flex items-center gap-1"><Globe className="size-3.5 text-green-500" /> Open Access</span> : <span className="inline-flex items-center gap-1"><Lock className="size-3.5 text-[var(--color-text-muted)]" /> Restrito</span>}</dd></div>
             </dl>
           </div>
 
@@ -383,7 +383,7 @@ function PedidoDetail() {
                                 <Edit3 className="size-3" />Editar
                               </Link>
                               <span className={`text-xs font-medium flex items-center gap-1 ${obraExistente.publicado ? "text-green-600" : "text-amber-600"}`}>
-                                {obraExistente.publicado ? <><Globe className="size-3" />Pública</> : <><Lock className="size-3" />Privada</>}
+                                {obraExistente.publicado ? <span className="inline-flex items-center gap-1"><Globe className="size-3" />Pública</span> : <span className="inline-flex items-center gap-1"><Lock className="size-3" />Privada</span>}
                               </span>
                             </div>
                           ) : (
