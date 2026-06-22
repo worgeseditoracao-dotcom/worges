@@ -17,7 +17,8 @@ export async function POST(request: Request) {
 
     let pageCount = 0;
     try {
-      const pdfParse = (await import("pdf-parse")).default;
+      // @ts-ignore - pdf-parse ESM
+      const pdfParse = require("pdf-parse");
       const data = await pdfParse(buffer);
       pageCount = data.numpages;
     } catch {
