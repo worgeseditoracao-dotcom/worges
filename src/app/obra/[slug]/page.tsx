@@ -169,6 +169,16 @@ export default function ObraPublicPage() {
   const podeBaixar = obra.open_access || is_owner_or_admin;
   const capaUrl = obra.capa_url ?? "/images/book-cover-placeholder.svg";
 
+  let obraDoi = "";
+  let obraIsbn = "";
+  try {
+    const meta = JSON.parse(obra.doi || "{}");
+    obraDoi = meta.doi || "";
+    obraIsbn = meta.isbn || "";
+  } catch {
+    obraDoi = obra.doi || "";
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-bg-subtle)]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -342,18 +352,25 @@ export default function ObraPublicPage() {
               )}
             </div>
 
-            {obra.doi && (
+            {(obraDoi || obraIsbn) && (
               <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
-                <h2 className="text-sm font-bold mb-2">DOI</h2>
-                <a
-                  href={`https://doi.org/${obra.doi}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 transition-colors"
-                >
-                  {obra.doi}
-                  <ExternalLink className="size-3.5" />
-                </a>
+                <h2 className="text-sm font-bold mb-3">Identificação</h2>
+                <div className="flex flex-col gap-2">
+                  {obraIsbn && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[var(--color-text-muted)] w-12">ISBN</span>
+                      <span className="text-sm font-medium font-mono">{obraIsbn}</span>
+                    </div>
+                  )}
+                  {obraDoi && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[var(--color-text-muted)] w-12">DOI</span>
+                      <a href={`https://doi.org/${obraDoi}`} target="_blank" rel="noopener noreferrer" className="text-sm text-cyan-500 hover:text-cyan-400 transition-colors inline-flex items-center gap-1">
+                        {obraDoi}<ExternalLink className="size-3.5" />
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

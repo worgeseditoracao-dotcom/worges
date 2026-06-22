@@ -21,6 +21,8 @@ function EditorObra() {
   const [resumo, setResumo] = useState("");
   const [openAccess, setOpenAccess] = useState(false);
   const [publicado, setPublicado] = useState(false);
+  const [doi, setDoi] = useState("");
+  const [isbn, setIsbn] = useState("");
   const [salvando, setSalvando] = useState(false);
   const capaRef = useRef<HTMLInputElement>(null);
   const [capaFile, setCapaFile] = useState<string | null>(null);
@@ -40,6 +42,14 @@ function EditorObra() {
         setResumo(o.resumo ?? "");
         setOpenAccess(o.open_access ?? false);
         setPublicado(o.publicado ?? false);
+        try {
+          const meta = JSON.parse(o.doi || "{}");
+          setDoi(meta.doi || o.doi || "");
+          setIsbn(meta.isbn || "");
+        } catch {
+          setDoi(o.doi || "");
+          setIsbn("");
+        }
       })
       .catch(() => setObra(null))
       .finally(() => setLoading(false));
@@ -59,6 +69,7 @@ function EditorObra() {
           resumo,
           open_access: openAccess,
           publicado,
+          doi: JSON.stringify({ doi: doi || null, isbn: isbn || null }),
         }),
       });
       if (!res.ok) throw new Error("Erro ao salvar");
@@ -122,18 +133,30 @@ function EditorObra() {
               <input type="text" value={autores} onChange={(e) => setAutores(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium">Categoria</label>
-                <select value={categoria} onChange={(e) => setCategoria(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60">
-                  <option value="">Selecione</option>
-                  <option>Acadêmico</option><option>Literatura</option><option>Infantil</option>
-                  <option>Tecnologia</option><option>Direito</option><option>Gestão</option>
-                  <option>Saúde</option><option>Educação</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">Categoria</label>
+                  <select value={categoria} onChange={(e) => setCategoria(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60">
+                    <option value="">Selecione</option>
+                    <option>Acadêmico</option><option>Literatura</option><option>Infantil</option>
+                    <option>Tecnologia</option><option>Direito</option><option>Gestão</option>
+                    <option>Saúde</option><option>Educação</option>
+                  </select>
+                </div>
               </div>
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">ISBN</label>
+                  <input type="text" value={isbn} onChange={(e) => setIsbn(e.target.value)} placeholder="978-65-00-00001-1"
+                    className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium">DOI</label>
+                  <input type="text" value={doi} onChange={(e) => setDoi(e.target.value)} placeholder="10.0000/worges-xxxx"
+                    className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60" />
+                </div>
+              </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Resumo</label>
               <textarea rows={4} value={resumo} onChange={(e) => setResumo(e.target.value)}
