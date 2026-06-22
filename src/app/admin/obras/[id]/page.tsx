@@ -139,9 +139,17 @@ function EditorObra() {
                   <select value={categoria} onChange={(e) => setCategoria(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60">
                     <option value="">Selecione</option>
-                    <option>Acadêmico</option><option>Literatura</option><option>Infantil</option>
-                    <option>Tecnologia</option><option>Direito</option><option>Gestão</option>
-                    <option>Saúde</option><option>Educação</option>
+                    <option>Acadêmico / Científico</option><option>Administração e Negócios</option><option>Arquitetura e Urbanismo</option>
+                    <option>Artes</option><option>Autoajuda</option><option>Biografia / Memórias</option>
+                    <option>Ciências Biológicas</option><option>Ciências Exatas</option><option>Ciências Sociais</option>
+                    <option>Contabilidade e Finanças</option><option>Direito</option><option>Economia</option>
+                    <option>Educação e Pedagogia</option><option>Engenharias</option><option>Esoterismo e Espiritualidade</option>
+                    <option>Esportes e Lazer</option><option>Filosofia</option><option>Gastronomia e Culinária</option>
+                    <option>Geografia e História</option><option>Infantil e Infanto-juvenil</option><option>Informática e Tecnologia</option>
+                    <option>Letras e Linguística</option><option>Literatura (Ficção, Poesia, Romance)</option><option>Marketing e Comunicação</option>
+                    <option>Medicina e Saúde</option><option>Meio Ambiente e Sustentabilidade</option><option>Política e Relações Internacionais</option>
+                    <option>Psicologia</option><option>Religião e Teologia</option><option>Turismo e Hotelaria</option>
+                    <option>Outros</option>
                   </select>
                 </div>
               </div>

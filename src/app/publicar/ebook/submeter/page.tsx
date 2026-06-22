@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, ArrowLeft, Upload, X, FileText, Check, Globe, Lock, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Upload, X, FileText, Check, Globe, Lock, Loader2, File, Image } from "lucide-react";
 import toast from "react-hot-toast";
 import { AuthGate } from "@/components/AuthGate";
 
@@ -47,6 +47,48 @@ function FormularioEbook() {
   const [loading, setLoading] = useState(false);
   const [whatsapp, setWhatsapp] = useState("");
   const [emailContato, setEmailContato] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [wordFile, setWordFile] = useState<File | null>(null);
+  const [capaFile, setCapaFile] = useState<File | null>(null);
+  const [paginas, setPaginas] = useState<number | null>(null);
+  const [contandoPaginas, setContandoPaginas] = useState(false);
+  const pdfRef = useRef<HTMLInputElement>(null);
+  const wordRef = useRef<HTMLInputElement>(null);
+  const capaRef = useRef<HTMLInputElement>(null);
+
+  async function handlePdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") { toast.error("Apenas arquivos PDF."); return; }
+    setPdfFile(file);
+    setContandoPaginas(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/contar-paginas", { method: "POST", body: fd });
+    const data = await res.json();
+    setContandoPaginas(false);
+    if (res.ok) {
+      setPaginas(data.paginas);
+      toast.success(`Detectadas ${data.paginas} páginas`);
+    } else {
+      toast.error("Erro ao contar páginas");
+    }
+  }
+
+  function handleWordUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith(".doc") && !file.name.endsWith(".docx")) { toast.error("Apenas arquivos Word (.doc/.docx)."); return; }
+    setWordFile(file);
+  }
+
+  function handleCapaUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!["png", "jpg", "jpeg", "pdf"].includes(ext || "")) { toast.error("Formatos aceitos: PNG, JPG, PDF."); return; }
+    setCapaFile(file);
+  }
 
   function toggleAdicional(id: Adicional) {
     setAdicionais((prev) => {
@@ -69,6 +111,9 @@ function FormularioEbook() {
     if (!autores.trim()) { toast.error("Informe o(s) autor(es)."); return; }
     if (!emailContato.trim()) { toast.error("Informe seu e-mail de contato."); return; }
     if (!whatsapp.trim()) { toast.error("Informe seu WhatsApp."); return; }
+    if (!pdfFile) { toast.error("Anexe o arquivo PDF da obra."); return; }
+    if (!ehSem && !wordFile) { toast.error("Anexe o arquivo Word (.docx) da obra."); return; }
+    if (!paginas) { toast.error("Aguardando contagem de páginas..."); return; }
     setLoading(true);
     const res = await fetch("/api/submeter", {
       method: "POST",
@@ -81,6 +126,7 @@ function FormularioEbook() {
         valor_base: precoBase,
         orcamento_final: total,
         open_access: openAccess,
+        paginas: paginas,
         servicos: [...adicionais].map((id) => {
           const s = servicosAdicionais.find((x) => x.id === id)!;
           return { nome: s.nome, valor: s.valor };
@@ -127,9 +173,17 @@ function FormularioEbook() {
                   <label htmlFor="categoria" className="text-sm font-medium">Categoria</label>
                   <select id="categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-full px-4 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm outline-none focus:border-cyan-500/60">
                     <option value="">Selecione uma categoria</option>
-                    <option>Acadêmico</option><option>Literatura</option><option>Infantil</option>
-                    <option>Tecnologia</option><option>Direito</option><option>Gestão</option>
-                    <option>Saúde</option><option>Educação</option>
+                    <option>Acadêmico / Científico</option><option>Administração e Negócios</option><option>Arquitetura e Urbanismo</option>
+                    <option>Artes</option><option>Autoajuda</option><option>Biografia / Memórias</option>
+                    <option>Ciências Biológicas</option><option>Ciências Exatas</option><option>Ciências Sociais</option>
+                    <option>Contabilidade e Finanças</option><option>Direito</option><option>Economia</option>
+                    <option>Educação e Pedagogia</option><option>Engenharias</option><option>Esoterismo e Espiritualidade</option>
+                    <option>Esportes e Lazer</option><option>Filosofia</option><option>Gastronomia e Culinária</option>
+                    <option>Geografia e História</option><option>Infantil e Infanto-juvenil</option><option>Informática e Tecnologia</option>
+                    <option>Letras e Linguística</option><option>Literatura (Ficção, Poesia, Romance)</option><option>Marketing e Comunicação</option>
+                    <option>Medicina e Saúde</option><option>Meio Ambiente e Sustentabilidade</option><option>Política e Relações Internacionais</option>
+                    <option>Psicologia</option><option>Religião e Teologia</option><option>Turismo e Hotelaria</option>
+                    <option>Outros</option>
                   </select>
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -168,6 +222,61 @@ function FormularioEbook() {
                   <p className="text-xs text-[var(--color-text-muted)] mt-1 ml-6">O PDF completo da obra será público no catálogo para download gratuito.</p>
                 </div>
               </label>
+            </div>
+
+            <div className="gradient-card rounded-[var(--radius-xl)] border border-[var(--color-border)] p-6">
+              <h2 className="text-base font-bold mb-1">Arquivos da obra</h2>
+              <p className="text-xs text-[var(--color-text-muted)] mb-5">
+                {ehSem
+                  ? "Envie o PDF da obra finalizada para contagem de páginas."
+                  : "Envie o PDF + Word (.docx) — o Word é obrigatório para diagramação."}
+              </p>
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2">Arquivo PDF <span className="text-red-500">*</span></p>
+                {pdfFile ? (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] border border-cyan-500/30 bg-cyan-500/5">
+                    <FileText className="size-4 text-cyan-500 shrink-0" />
+                    <span className="text-sm truncate flex-1">{pdfFile.name}</span>
+                    {contandoPaginas ? <Loader2 className="size-4 animate-spin text-cyan-500" /> : paginas ? <span className="text-xs font-medium text-cyan-500">{paginas} pág.</span> : null}
+                    <button type="button" onClick={() => { setPdfFile(null); setPaginas(null); if (pdfRef.current) pdfRef.current.value = ""; }} className="text-[var(--color-text-muted)] hover:text-red-500"><X className="size-4" /></button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => pdfRef.current?.click()} className="w-full flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-[var(--radius-md)] border-2 border-dashed border-[var(--color-border)] hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-colors">
+                    <Upload className="size-6 text-[var(--color-text-muted)]" /><span className="text-sm text-[var(--color-text-muted)]">Clique para enviar o PDF</span>
+                  </button>
+                )}
+                <input ref={pdfRef} type="file" accept=".pdf" className="hidden" onChange={handlePdfUpload} />
+              </div>
+              {!ehSem && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium mb-2">Arquivo Word (.docx) <span className="text-red-500">*</span></p>
+                  {wordFile ? (
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] border border-cyan-500/30 bg-cyan-500/5">
+                      <File className="size-4 text-blue-500 shrink-0" /><span className="text-sm truncate flex-1">{wordFile.name}</span>
+                      <button type="button" onClick={() => { setWordFile(null); if (wordRef.current) wordRef.current.value = ""; }} className="text-[var(--color-text-muted)] hover:text-red-500"><X className="size-4" /></button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => wordRef.current?.click()} className="w-full flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-[var(--radius-md)] border-2 border-dashed border-[var(--color-border)] hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-colors">
+                      <Upload className="size-6 text-[var(--color-text-muted)]" /><span className="text-sm text-[var(--color-text-muted)]">Clique para enviar o Word</span>
+                    </button>
+                  )}
+                  <input ref={wordRef} type="file" accept=".doc,.docx" className="hidden" onChange={handleWordUpload} />
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-medium mb-2">Capa (PNG, JPG ou PDF)</p>
+                {capaFile ? (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] border border-purple-500/30 bg-purple-500/5">
+                    <Image className="size-4 text-purple-500 shrink-0" /><span className="text-sm truncate flex-1">{capaFile.name}</span>
+                    <button type="button" onClick={() => { setCapaFile(null); if (capaRef.current) capaRef.current.value = ""; }} className="text-[var(--color-text-muted)] hover:text-red-500"><X className="size-4" /></button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => capaRef.current?.click()} className="w-full flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-[var(--radius-md)] border-2 border-dashed border-[var(--color-border)] hover:border-purple-500/40 hover:bg-purple-500/5 transition-colors">
+                    <Image className="size-6 text-[var(--color-text-muted)]" /><span className="text-sm text-[var(--color-text-muted)]">Clique para enviar a capa (opcional)</span>
+                  </button>
+                )}
+                <input ref={capaRef} type="file" accept=".png,.jpg,.jpeg,.pdf" className="hidden" onChange={handleCapaUpload} />
+              </div>
             </div>
 
             {!ehSem && (
@@ -210,6 +319,7 @@ function FormularioEbook() {
               <h3 className="text-sm font-bold mb-3">Resumo do pedido</h3>
               <div className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between"><span className="text-[var(--color-text-muted)]">Ebook {modalidadeLabel}{!ehSem ? ` (${faixa === "60" ? "até 60" : faixa === "150" ? "até 150" : "300+"} pág)` : ""}</span><span>R$ {precoBase.toFixed(2).replace(".", ",")}</span></div>
+                {paginas && <div className="flex justify-between text-[var(--color-text-muted)]"><span>Páginas detectadas</span><span>{paginas} pág.</span></div>}
                 {[...adicionais].map((id) => {
                   const s = servicosAdicionais.find((x) => x.id === id)!;
                   return <div key={id} className="flex justify-between text-[var(--color-text-muted)]"><span>+ {s.nome}</span><span>R$ {s.valor.toFixed(2).replace(".", ",")}</span></div>;
@@ -221,7 +331,7 @@ function FormularioEbook() {
 
             <button type="submit" disabled={loading}
               className="w-full px-6 py-3 rounded-[var(--radius-md)] text-sm font-semibold bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-black transition-all shadow-cyan">
-              {loading ? <><Loader2 className="size-4 animate-spin inline mr-2" />Enviando pedido...</> : "Enviar pedido"}
+              {loading ? <span className="inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Enviando pedido...</span> : "Enviar pedido"}
             </button>
           </form>
         </AuthGate>
