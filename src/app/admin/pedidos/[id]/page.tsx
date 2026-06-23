@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft, FileText, User, Mail, DollarSign, Clock, Download,
   CircleCheck, CircleAlert, AlertCircle, Check, X, ExternalLink, Edit3,
-  History, Upload, Globe, Lock, Printer, Loader2
+  History, Upload, Globe, Lock, Printer, Loader2, Award
 } from "lucide-react";
 import toast from "react-hot-toast";
 
