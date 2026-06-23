@@ -157,7 +157,7 @@ export default function MinhaContaPage() {
         setPedidos(items);
         if (items.length > 0) setPedidoExpandido(items[0].id);
 
-        const arquivosPromises = items.map(async (item) => {
+        const arquivosPromises = items.map(async (item: Pedido) => {
           try {
             const res = await fetch(`/api/pedidos/${item.id}`);
             if (res.ok) {
