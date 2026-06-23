@@ -211,7 +211,7 @@ export default function MinhaContaPage() {
     fd.append("pedido_id", pedidoId);
     fd.append("tipo", tipo);
     fd.append("acao", acao);
-    const res = await fetch("/api/upload-arquivo", { method: "POST", body: fd });
+    const res = await fetch("/api/upload-editorial", { method: "POST", body: fd });
     if (res.ok) {
       toast.success("Arquivo enviado!");
       window.location.reload();
@@ -435,7 +435,7 @@ export default function MinhaContaPage() {
                                 onClick={async () => {
                                   setUploadingFile(pedido.id);
                                   try {
-                                    const res = await fetch("/api/upload-arquivo", {
+                                    const res = await fetch("/api/upload-editorial", {
                                       method: "POST",
                                       headers: { "Content-Type": "application/json" },
                                       body: JSON.stringify({ pedido_id: pedido.id, tipo: "revisao", acao: "aprovar_revisao" }),
@@ -467,7 +467,7 @@ export default function MinhaContaPage() {
                                 onClick={async () => {
                                   setUploadingFile(pedido.id);
                                   try {
-                                    const res = await fetch("/api/upload-arquivo", {
+                                    const res = await fetch("/api/upload-editorial", {
                                       method: "POST",
                                       headers: { "Content-Type": "application/json" },
                                       body: JSON.stringify({ pedido_id: pedido.id, tipo: "prova", acao: "aprovar_prova" }),

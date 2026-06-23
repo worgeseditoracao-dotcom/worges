@@ -135,7 +135,7 @@ function PedidoDetail() {
     fd.append("pedido_id", id);
     fd.append("tipo", tipo);
     fd.append("acao", acao);
-    const res = await fetch("/api/upload-arquivo", { method: "POST", body: fd });
+    const res = await fetch("/api/upload-editorial", { method: "POST", body: fd });
     if (res.ok) {
       toast.success("Arquivo enviado!");
       setTimeout(() => window.location.reload(), 1000);
