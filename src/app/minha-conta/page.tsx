@@ -150,8 +150,8 @@ export default function MinhaContaPage() {
             orcamento_number: p.orcamento_final ?? 0,
             etapas: montarEtapas(p.status, dataCriacao),
             status: p.status,
-            cartaAceite: ["aprovado", "publicado"].includes(p.status),
-            certificado: p.pedido_servicos?.some((s: any) => s.nome === "Certificado"),
+            cartaAceite: ["aprovado", "em_producao", "publicado"].includes(p.status) && p.tipo === "capitulo",
+            certificado: ["publicado"].includes(p.status) || ["aprovado", "em_producao"].includes(p.status),
           };
         });
         setPedidos(items);
@@ -362,14 +362,14 @@ export default function MinhaContaPage() {
                         <div className="mt-6 pt-4 border-t border-[var(--color-border)]">
                           <div className="flex flex-wrap items-center gap-2">
                             {pedido.cartaAceite && (
-                              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
+                              <a href={`/api/carta-aceite/${pedido.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
                                 <FileText className="w-3 h-3" />Carta de aceite
-                              </button>
+                              </a>
                             )}
                             {pedido.certificado && (
-                              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
+                              <a href={`/api/certificado/${pedido.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
                                 <Award className="w-3 h-3" />Certificado
-                              </button>
+                              </a>
                             )}
                             {pedido.link && (
                               <Link href={pedido.link} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-cyan-500/30 bg-cyan-500/5 text-xs font-medium text-cyan-600 transition-colors">

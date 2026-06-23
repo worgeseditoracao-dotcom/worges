@@ -239,6 +239,16 @@ function PedidoDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <a href={`/api/certificado/${id}`} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
+            <Award className="size-3.5" />Certificado
+          </a>
+          {pedido.tipo === "capitulo" && (
+            <a href={`/api/carta-aceite/${id}`} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
+              <FileText className="size-3.5" />Carta de aceite
+            </a>
+          )}
           <button onClick={() => setEditandoPagina(!editandoPagina)}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
             <Edit3 className="size-3.5" />{editandoPagina ? "Fechar editor" : "Editar página"}

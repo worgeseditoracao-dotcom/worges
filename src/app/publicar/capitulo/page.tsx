@@ -203,9 +203,9 @@ export default function CapituloPage() {
                 <p className="text-xs font-medium">Template obrigatório para capítulo</p>
                 <p className="text-xs text-[var(--color-text-muted)]">Baixe e use o modelo antes de enviar o arquivo</p>
               </div>
-              <button className="text-xs font-medium text-cyan-600 hover:text-cyan-500 transition-colors whitespace-nowrap">
-                Baixar
-              </button>
+              <a href="/templates/capitulo-template.html" download className="text-xs font-medium text-cyan-600 hover:text-cyan-500 transition-colors whitespace-nowrap">
+                Baixar template
+              </a>
             </div>
 
             <Link
