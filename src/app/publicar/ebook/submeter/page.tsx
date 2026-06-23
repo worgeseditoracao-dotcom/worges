@@ -10,8 +10,13 @@ import { AuthGate } from "@/components/AuthGate";
 type Adicional = "doi" | "revisao" | "kindle";
 
 const PRECO_DOI = 30;
-const PRECO_REVISAO = 230;
 const PRECO_KINDLE = 89.90;
+
+function precoRevisao(faixa: string): number {
+  if (faixa === "60") return 100;
+  if (faixa === "150") return 150;
+  return 200;
+}
 
 const faixasPrecoSem: Record<string, number> = {};
 const precoSemDiagramacao = 249.90;
@@ -20,9 +25,9 @@ const faixasPrecosCom: Record<string, number> = {
   "60": 269.90, "150": 329.90, "300+": 349.90,
 };
 
-const servicosAdicionais = [
+const servicosAdicionaisBase = [
   { id: "doi" as Adicional, nome: "DOI", desc: "Identificador digital permanente", valor: PRECO_DOI },
-  { id: "revisao" as Adicional, nome: "Revisão Ortográfica e Gramatical", desc: "Revisão completa do texto", valor: PRECO_REVISAO },
+  { id: "revisao" as Adicional, nome: "Revisão Ortográfica e Gramatical", desc: "Revisão completa do texto — requer Word", valorBase: precoRevisao },
   { id: "kindle" as Adicional, nome: "Conversão para Kindle (ePub)", desc: "Formato compatível com Amazon", valor: PRECO_KINDLE },
 ];
 
@@ -116,9 +121,16 @@ function FormularioEbook() {
 
   const totalAdicionais =
     (adicionais.has("doi") ? PRECO_DOI : 0) +
-    (adicionais.has("revisao") ? PRECO_REVISAO : 0) +
+    (adicionais.has("revisao") ? precoRevisao(faixa) : 0) +
     (adicionais.has("kindle") ? PRECO_KINDLE : 0);
   const total = precoBase + totalAdicionais;
+
+  const servicosAdicionais = servicosAdicionaisBase
+    .filter((s) => !ehSem || s.id !== "revisao")
+    .map((s) => ({
+      ...s,
+      valor: "valorBase" in s ? s.valorBase(faixa) : s.valor,
+    }));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,7 +156,7 @@ function FormularioEbook() {
         paginas: paginas,
         servicos: [...adicionais].map((id) => {
           const s = servicosAdicionais.find((x) => x.id === id)!;
-          return { nome: s.nome, valor: s.valor };
+          return { nome: s.nome, valor: s.valor as number };
         }),
         autores,
         resumo,
