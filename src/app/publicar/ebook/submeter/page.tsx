@@ -30,11 +30,24 @@ function FormularioEbook() {
   const searchParams = useSearchParams();
   const tipo = (searchParams.get("tipo") ?? "com-diagramacao") as string;
   const ehSem = tipo === "sem-diagramacao";
-  const faixa = searchParams.get("faixa") ?? "60";
+  const faixaParam = searchParams.get("faixa") ?? "60";
+
+  const [faixa, setFaixa] = useState(faixaParam);
 
   const precoBase = ehSem
     ? precoSemDiagramacao
     : (faixasPrecosCom[faixa] ?? 269.90);
+
+  function calcularFaixa(pag: number): string {
+    if (pag <= 60) return "60";
+    if (pag <= 150) return "150";
+    return "300+";
+  }
+
+  function getFaixaLabel(f: string): string {
+    const labels: Record<string, string> = { "60": "Até 60 pág", "150": "Até 150 pág", "300+": "300+ pág" };
+    return labels[f] || f;
+  }
 
   const modalidadeLabel = ehSem ? "Sem Diagramação" : "Com Diagramação";
 
@@ -69,7 +82,9 @@ function FormularioEbook() {
     setContandoPaginas(false);
     if (res.ok) {
       setPaginas(data.paginas);
-      toast.success(`Detectadas ${data.paginas} páginas`);
+      const novaFaixa = calcularFaixa(data.paginas);
+      setFaixa(novaFaixa);
+      toast.success(`${data.paginas} páginas detectadas — faixa: ${getFaixaLabel(novaFaixa)}`);
     } else {
       toast.error("Erro ao contar páginas");
     }
@@ -281,14 +296,19 @@ function FormularioEbook() {
 
             {!ehSem && (
               <div className="gradient-card rounded-[var(--radius-xl)] border border-[var(--color-border)] p-6">
-                <h2 className="text-base font-bold mb-3">Faixa de páginas</h2>
+                <h2 className="text-base font-bold mb-1">Faixa de páginas</h2>
+                <p className="text-xs text-[var(--color-text-muted)] mb-3">
+                  {paginas
+                    ? `${paginas} páginas detectadas — faixa selecionada automaticamente.`
+                    : "Selecione manualmente ou anexe o PDF para detecção automática."}
+                </p>
                 <div className="grid grid-cols-3 gap-2">
                   {Object.entries(faixasPrecosCom).map(([key, price]) => (
-                    <button type="button" key={key} onClick={() => window.location.search = `?tipo=${tipo}&faixa=${key}`}
+                    <button type="button" key={key} onClick={() => setFaixa(key)}
                       className={`p-3 rounded-[var(--radius-md)] border text-sm transition-all ${
                         faixa === key ? "border-cyan-500 bg-cyan-500/10 text-cyan-500" : "border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-cyan-500/30"
                       }`}>
-                      <p className="text-xs">{key === "60" ? "Até 60 pág" : key === "150" ? "Até 150 pág" : "300+ pág"}</p>
+                      <p className="text-xs">{getFaixaLabel(key)}</p>
                       <p className="font-bold mt-1">R$ {price.toFixed(2).replace(".", ",")}</p>
                     </button>
                   ))}
