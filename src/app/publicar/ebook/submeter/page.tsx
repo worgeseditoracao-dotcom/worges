@@ -129,7 +129,7 @@ function FormularioEbook() {
     .filter((s) => !ehSem || s.id !== "revisao")
     .map((s) => ({
       ...s,
-      valor: "valorBase" in s ? s.valorBase(faixa) : s.valor,
+      valor: "valorBase" in s && typeof s.valorBase === "function" ? s.valorBase(faixa) : (s as any).valor as number,
     }));
 
   async function handleSubmit(e: React.FormEvent) {
