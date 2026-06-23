@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
+  Upload,
   Globe,
   EyeOff,
   Edit3,
@@ -119,6 +120,8 @@ export default function MinhaContaPage() {
   const [loading, setLoading] = useState(true);
   const [pedidoExpandido, setPedidoExpandido] = useState<string | null>(null);
   const [togglingObra, setTogglingObra] = useState<string | null>(null);
+  const [arquivosPorPedido, setArquivosPorPedido] = useState<Record<string, any[]>>({});
+  const [uploadingFile, setUploadingFile] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([fetch("/api/pedidos"), fetch("/api/minhas-obras")])
@@ -128,7 +131,7 @@ export default function MinhaContaPage() {
         setObras(obrasData.obras ?? []);
         return pedidosData;
       })
-      .then((data) => {
+      .then(async (data) => {
         const items = (data.pedidos ?? []).map((p: any) => {
           const tipo = p.tipo as TipoServico;
           const dataCriacao = formatDate(p.data_criacao);
@@ -153,6 +156,21 @@ export default function MinhaContaPage() {
         });
         setPedidos(items);
         if (items.length > 0) setPedidoExpandido(items[0].id);
+
+        const arquivosPromises = items.map(async (item) => {
+          try {
+            const res = await fetch(`/api/pedidos/${item.id}`);
+            if (res.ok) {
+              const data = await res.json();
+              return { id: item.id, arquivos: data.pedido?.pedido_arquivos ?? [] };
+            }
+          } catch {}
+          return { id: item.id, arquivos: [] };
+        });
+        const arquivosResults = await Promise.all(arquivosPromises);
+        const arquivosMap: Record<string, any[]> = {};
+        arquivosResults.forEach((r) => { arquivosMap[r.id] = r.arquivos; });
+        setArquivosPorPedido(arquivosMap);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -182,6 +200,25 @@ export default function MinhaContaPage() {
     } finally {
       setTogglingObra(null);
     }
+  }
+
+  async function handleUploadArquivo(pedidoId: string, tipo: string, acao: string) {
+    setUploadingFile(pedidoId);
+    const file = (document.getElementById(`file-upload-${pedidoId}`) as HTMLInputElement)?.files?.[0];
+    if (!file) { toast.error("Selecione um arquivo"); setUploadingFile(null); return; }
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("pedido_id", pedidoId);
+    fd.append("tipo", tipo);
+    fd.append("acao", acao);
+    const res = await fetch("/api/upload-arquivo", { method: "POST", body: fd });
+    if (res.ok) {
+      toast.success("Arquivo enviado!");
+      window.location.reload();
+    } else {
+      toast.error("Erro ao enviar arquivo");
+    }
+    setUploadingFile(null);
   }
 
   return (
@@ -348,6 +385,110 @@ export default function MinhaContaPage() {
                             <div className="mt-3 flex items-start gap-2 text-xs text-red-600 bg-red-500/5 border border-red-500/20 rounded-[var(--radius-sm)] px-3 py-2.5">
                               <CircleAlert className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                               <span>A equipe editorial solicitou ajustes na obra. Verifique seu e-mail para mais detalhes e reenvie o arquivo corrigido.</span>
+                            </div>
+                          )}
+
+                          {arquivosPorPedido[pedido.id]?.length > 0 && (
+                            <div className="mt-4">
+                              <p className="text-sm font-medium mb-2">Arquivos enviados</p>
+                              <div className="space-y-1.5">
+                                {arquivosPorPedido[pedido.id].map((arq: any) => (
+                                  <div key={arq.id} className="flex items-center gap-2 text-xs">
+                                    <FileText className="size-3 text-[var(--color-text-muted)]" />
+                                    <span className="text-[var(--color-text-muted)]">{arq.tipo}{arq.acao ? ` - ${arq.acao}` : ""}</span>
+                                    {arq.url && (
+                                      <a href={arq.url} target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:underline ml-auto inline-flex items-center gap-1">
+                                        <Download className="size-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {pedido.status === "ajustes_solicitados" && (
+                            <div className="mt-4 p-4 rounded-[var(--radius-md)] border border-cyan-500/20 bg-cyan-500/5">
+                              <p className="text-sm font-medium mb-3">Enviar arquivo corrigido</p>
+                              <input
+                                type="file"
+                                id={`file-upload-${pedido.id}`}
+                                accept=".pdf,.doc,.docx"
+                                className="hidden"
+                                onChange={() => handleUploadArquivo(pedido.id, "correcao", "ajuste")}
+                              />
+                              <button
+                                onClick={() => document.getElementById(`file-upload-${pedido.id}`)?.click()}
+                                disabled={uploadingFile === pedido.id}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius-md)] bg-cyan-500 text-sm font-semibold text-black hover:bg-cyan-400 transition-all disabled:opacity-60"
+                              >
+                                {uploadingFile === pedido.id ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                                {uploadingFile === pedido.id ? "Enviando..." : "Selecionar arquivo"}
+                              </button>
+                            </div>
+                          )}
+
+                          {pedido.status === "revisao" && (
+                            <div className="mt-4 p-4 rounded-[var(--radius-md)] border border-cyan-500/20 bg-cyan-500/5">
+                              <p className="text-sm font-medium mb-3">Aprovar revisão</p>
+                              <button
+                                onClick={async () => {
+                                  setUploadingFile(pedido.id);
+                                  try {
+                                    const res = await fetch("/api/upload-arquivo", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ pedido_id: pedido.id, tipo: "revisao", acao: "aprovar_revisao" }),
+                                    });
+                                    if (res.ok) {
+                                      toast.success("Revisão aprovada!");
+                                      window.location.reload();
+                                    } else {
+                                      toast.error("Erro ao aprovar revisão");
+                                    }
+                                  } catch {
+                                    toast.error("Erro ao aprovar revisão");
+                                  }
+                                  setUploadingFile(null);
+                                }}
+                                disabled={uploadingFile === pedido.id}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius-md)] bg-green-500 text-sm font-semibold text-black hover:bg-green-400 transition-all disabled:opacity-60"
+                              >
+                                {uploadingFile === pedido.id ? <Loader2 className="size-4 animate-spin" /> : <CircleCheck className="size-4" />}
+                                {uploadingFile === pedido.id ? "Enviando..." : "Aprovar revisão"}
+                              </button>
+                            </div>
+                          )}
+
+                          {pedido.status === "prova" && (
+                            <div className="mt-4 p-4 rounded-[var(--radius-md)] border border-cyan-500/20 bg-cyan-500/5">
+                              <p className="text-sm font-medium mb-3">Aprovar prova</p>
+                              <button
+                                onClick={async () => {
+                                  setUploadingFile(pedido.id);
+                                  try {
+                                    const res = await fetch("/api/upload-arquivo", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ pedido_id: pedido.id, tipo: "prova", acao: "aprovar_prova" }),
+                                    });
+                                    if (res.ok) {
+                                      toast.success("Prova aprovada!");
+                                      window.location.reload();
+                                    } else {
+                                      toast.error("Erro ao aprovar prova");
+                                    }
+                                  } catch {
+                                    toast.error("Erro ao aprovar prova");
+                                  }
+                                  setUploadingFile(null);
+                                }}
+                                disabled={uploadingFile === pedido.id}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius-md)] bg-green-500 text-sm font-semibold text-black hover:bg-green-400 transition-all disabled:opacity-60"
+                              >
+                                {uploadingFile === pedido.id ? <Loader2 className="size-4 animate-spin" /> : <CircleCheck className="size-4" />}
+                                {uploadingFile === pedido.id ? "Enviando..." : "Aprovar prova"}
+                              </button>
                             </div>
                           )}
                         </div>

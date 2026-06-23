@@ -100,6 +100,8 @@ function PedidoDetail() {
   const [mudancas, setMudancas] = useState<Mudanca[]>([]);
   const [publicando, setPublicando] = useState(false);
   const [editandoPagina, setEditandoPagina] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadTipo, setUploadTipo] = useState("");
   const [obraExistente, setObraExistente] = useState<{ id: string; slug: string; publicado: boolean } | null>(null);
 
   useEffect(() => {
@@ -121,6 +123,27 @@ function PedidoDetail() {
       .catch(() => notFound())
       .finally(() => setLoading(false));
   }, [id]);
+
+  async function handleUpload(tipo: string, acao: string) {
+    setUploadTipo(tipo);
+    setUploadingFile(true);
+    const input = document.getElementById(`admin-upload-${id}-${tipo}`) as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) { setUploadingFile(false); return; }
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("pedido_id", id);
+    fd.append("tipo", tipo);
+    fd.append("acao", acao);
+    const res = await fetch("/api/upload-arquivo", { method: "POST", body: fd });
+    if (res.ok) {
+      toast.success("Arquivo enviado!");
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      toast.error("Erro ao enviar arquivo");
+    }
+    setUploadingFile(false);
+  }
 
   async function avancarEtapa(label: string) {
     try {
@@ -279,9 +302,35 @@ function PedidoDetail() {
                   <a href={arq.url} className="text-cyan-600 hover:text-cyan-500 shrink-0" download><Download className="size-4" /></a>
                 </div>
               ))}
-              <button className="mt-2 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] border border-dashed border-[var(--color-border)] text-xs text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors">
-                <Upload className="size-3.5" />Adicionar arquivo
-              </button>
+              {/* Upload de prova ou revisão pelo admin */}
+              <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Prova / Diagramação */}
+                  <div>
+                    <p className="text-xs font-medium mb-2">Arquivo diagramado (prova)</p>
+                    <input type="file" id={`admin-upload-${id}-prova`} accept=".pdf" className="hidden" 
+                      onChange={() => handleUpload("prova", "Prova enviada para revisão do autor")} />
+                    <button onClick={() => document.getElementById(`admin-upload-${id}-prova`)?.click()} disabled={uploadingFile}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-sm)] border border-dashed border-[var(--color-border)] text-xs text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors disabled:opacity-50">
+                      <Upload className="size-3.5" />
+                      {uploadingFile && uploadTipo === "prova" ? "Enviando..." : "Upload prova (PDF)"}
+                    </button>
+                  </div>
+                  {/* Revisão */}
+                  <div>
+                    <p className="text-xs font-medium mb-2">Arquivo revisado</p>
+                    <input type="file" id={`admin-upload-${id}-revisao`} accept=".pdf,.doc,.docx" className="hidden"
+                      onChange={() => handleUpload("revisao", "Revisão enviada")} />
+                    <button onClick={() => document.getElementById(`admin-upload-${id}-revisao`)?.click()} disabled={uploadingFile}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-sm)] border border-dashed border-[var(--color-border)] text-xs text-[var(--color-text-muted)] hover:border-purple-500/40 hover:text-purple-500 transition-colors disabled:opacity-50">
+                      <Upload className="size-3.5" />
+                      {uploadingFile && uploadTipo === "revisao" ? "Enviando..." : "Upload revisão"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <input type="file" id={`admin-upload-${id}-correcao`} accept=".pdf,.doc,.docx" className="hidden"
+                onChange={() => handleUpload("correcao", "Correção recebida do autor")} />
             </div>
           </div>
 
@@ -362,37 +411,57 @@ function PedidoDetail() {
                           </button>
                         )}
                         {etapa.label === "Revisão" && (
-                          <button onClick={() => avancarEtapa("aprovado")}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] bg-cyan-500 text-xs font-semibold text-black hover:bg-cyan-400 transition-all">
-                            <Check className="size-3" />Concluir revisão
-                          </button>
+                          <>
+                            <button onClick={() => avancarEtapa("aprovado")}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] bg-cyan-500 text-xs font-semibold text-black hover:bg-cyan-400 transition-all">
+                              <Check className="size-3" />Concluir revisão
+                            </button>
+                            <button onClick={() => document.getElementById(`admin-upload-${id}-revisao`)?.click()}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-purple-500/40 hover:text-purple-500 transition-colors">
+                              <Upload className="size-3" />Enviar para revisão
+                            </button>
+                          </>
                         )}
                         {(etapa.label === "Aprovado" || etapa.label === "Produção") && (
-                          obraExistente ? (
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Link
-                                href={`/obra/${obraExistente.slug}`}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-cyan-500/30 text-xs font-medium text-cyan-600 hover:bg-cyan-500/5 transition-colors"
-                              >
-                                <ExternalLink className="size-3" />Ver perfil
-                              </Link>
-                              <Link
-                                href={`/admin/obras/${obraExistente.id}`}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors"
-                              >
-                                <Edit3 className="size-3" />Editar
-                              </Link>
-                              <span className={`text-xs font-medium flex items-center gap-1 ${obraExistente.publicado ? "text-green-600" : "text-amber-600"}`}>
-                                {obraExistente.publicado ? <span className="inline-flex items-center gap-1"><Globe className="size-3" />Pública</span> : <span className="inline-flex items-center gap-1"><Lock className="size-3" />Privada</span>}
-                              </span>
-                            </div>
-                          ) : (
-                            <button onClick={criarPerfilObra} disabled={publicando}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] bg-cyan-600 text-xs font-semibold text-white hover:bg-cyan-500 transition-all disabled:opacity-50">
-                              {publicando ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
-                              {publicando ? "Criando..." : "Criar perfil da obra"}
-                            </button>
-                          )
+                          <div className="flex flex-wrap gap-2">
+                            {arquivos.some(a => a.tipo === "prova") && (
+                              <button onClick={() => document.getElementById(`admin-upload-${id}-prova`)?.click()}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] bg-cyan-500 text-xs font-semibold text-black hover:bg-cyan-400 transition-all">
+                                <Upload className="size-3" />Enviar para prova do autor
+                              </button>
+                            )}
+                            {obraExistente ? (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Link
+                                  href={`/obra/${obraExistente.slug}`}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-cyan-500/30 text-xs font-medium text-cyan-600 hover:bg-cyan-500/5 transition-colors"
+                                >
+                                  <ExternalLink className="size-3" />Ver perfil
+                                </Link>
+                                <Link
+                                  href={`/admin/obras/${obraExistente.id}`}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-muted)] hover:border-cyan-500/40 hover:text-cyan-500 transition-colors"
+                                >
+                                  <Edit3 className="size-3" />Editar
+                                </Link>
+                                <span className={`text-xs font-medium flex items-center gap-1 ${obraExistente.publicado ? "text-green-600" : "text-amber-600"}`}>
+                                  {obraExistente.publicado ? <span className="inline-flex items-center gap-1"><Globe className="size-3" />Pública</span> : <span className="inline-flex items-center gap-1"><Lock className="size-3" />Privada</span>}
+                                </span>
+                              </div>
+                            ) : (
+                              <button onClick={criarPerfilObra} disabled={publicando}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] bg-cyan-600 text-xs font-semibold text-white hover:bg-cyan-500 transition-all disabled:opacity-50">
+                                {publicando ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+                                {publicando ? "Criando..." : "Criar perfil da obra"}
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        {etapa.label === "Ajustes solicitados" && (
+                          <button onClick={() => document.getElementById(`admin-upload-${id}-correcao`)?.click()}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] bg-cyan-500 text-xs font-semibold text-black hover:bg-cyan-400 transition-all">
+                            <Upload className="size-3" />Upload correção recebida
+                          </button>
                         )}
                         {etapa.label === "Publicado" && (
                           <div className="flex items-center gap-2 flex-wrap">
